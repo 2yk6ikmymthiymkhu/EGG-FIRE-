@@ -1,16 +1,13 @@
-# EGG FIRE — protótipo 3D Godot 4
+# EGG FIRE — Godot 4
 
-Este diretório contém o primeiro projeto real em Godot 4: cenário de teste, personagem 3D, câmera em terceira pessoa, teclado e controles de toque.
+O projeto Android é exportado pelo Godot 4.3.
 
-## Abrir
-1. Instale o Godot 4.x.
-2. No Project Manager, escolha **Import**.
-3. Selecione este diretório e abra `project.godot`.
-4. Execute a cena principal com F6/F5.
+- Motor: Godot 4.3
+- Linguagem da lógica: GDScript
+- Lobby: a imagem original do usuário é mantida sem edição.
+- Personagem no lobby: imagem original numa placa 3D, verso preto, giro por arraste e respiração suave.
+- Arena de protótipo: mapa 3D, câmera em terceira pessoa, joystick/toque, 15 adversários offline e zona segura que diminui.
 
-## Controles
-- PC: WASD ou setas para movimentar; espaço para pular; mouse para girar a câmera; Esc libera o cursor.
-- Android: joystick virtual no lado esquerdo; arraste o lado direito da tela para girar a câmera; botão PULAR no canto inferior direito.
+**Limite atual:** os adversários e o jogador na arena usam cápsulas provisórias. A imagem do lobby não é um modelo 3D volumétrico. Para usar o personagem original como modelo 3D animado durante a partida, é necessário um arquivo GLB/GLTF com malha e rig.
 
-## Limitação desta etapa
-É um protótipo de movimentação em um chão de teste. Ainda não há mapa de batalha, armas, bots, partidas ou integração do runtime Godot ao APK Android existente.
+O workflow GitHub Actions copia as imagens originais sem alterá-las, importa o projeto Godot e exporta um APK Android ARM64.
