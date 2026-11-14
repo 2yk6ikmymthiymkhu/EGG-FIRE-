@@ -7,6 +7,7 @@ extends CharacterBody3D
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var target: Node3D
 var attack_cooldown := 0.0
+var health := 100.0
 var wander_direction := Vector3.ZERO
 var wander_timer := 0.0
 
@@ -15,6 +16,12 @@ func _ready() -> void:
     var players := get_tree().get_nodes_in_group("player")
     if not players.is_empty():
         target = players[0]
+
+func take_damage(amount: float) -> void:
+    health = maxf(health - amount, 0.0)
+    if health <= 0.0:
+        remove_from_group("bots")
+        queue_free()
 
 func _physics_process(delta: float) -> void:
     if not is_on_floor():
