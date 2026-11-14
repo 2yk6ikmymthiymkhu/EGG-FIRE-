@@ -48,9 +48,9 @@ jobs:
         run: |
           mkdir -p godot/assets app/build/outputs/apk/debug
           cp app/src/main/file_000000002b60820e9b3b90c83315eeed.png godot/assets/lobby.png
-          cp app/src/main/file_0000000090f8820e959f5ac390ae6590.png godot/assets/character.png
+          cp personagem_battle_royale_rig_animacoes.glb godot/assets/character.glb
           test -s godot/assets/lobby.png
-          test -s godot/assets/character.png
+          test -s godot/assets/character.glb
 
       - name: Configure Godot Android SDK paths
         run: |
