@@ -21,6 +21,22 @@
 #status{position:absolute;z-index:5;left:50%;bottom:3%;transform:translate(-50%,150%);padding:11px 18px;border:1px solid #ffffff35;border-radius:14px;background:#101d38ed;color:#fff;font-weight:700;font-size:clamp(12px,1.6vw,17px);text-align:center;max-width:90%;box-shadow:0 8px 28px #0007;transition:transform .25s ease}
 #status.show{transform:translate(-50%,0)}
 @media(prefers-reduced-motion:reduce){.petal{animation:none;display:none}.hit{transition:none}}
+
+#characters-panel{position:absolute;z-index:8;left:0;top:0;height:100%;width:min(410px,43vw);min-width:280px;padding:clamp(16px,2.4vw,30px);background:linear-gradient(145deg,#081a34f5,#102b4bf2 65%,#07152ff5);border-right:2px solid #f2c87988;box-shadow:18px 0 55px #0009;backdrop-filter:blur(12px);transform:translateX(-105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);color:#fff;display:flex;flex-direction:column;gap:14px}
+#characters-panel.open{transform:translateX(0)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #e8c47c66;padding-bottom:12px}
+.panel-title{font-size:clamp(18px,2.4vw,27px);font-weight:900;letter-spacing:1px;color:#ffe2a1;text-shadow:0 2px 10px #0008}
+#close-characters{width:36px;height:36px;border:1px solid #f4d49a88;border-radius:10px;background:#ffffff14;color:white;font-size:23px;line-height:1;cursor:pointer}
+.panel-subtitle{font-size:clamp(11px,1.3vw,14px);color:#d2e0f2;margin:0}
+.character-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;overflow:auto;padding:2px 3px 8px}
+.character-card{min-height:clamp(125px,21vh,190px);border:1px solid #b9d4ed55;border-radius:13px;background:linear-gradient(160deg,#244b70cc,#10233fe8);color:#fff;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:.18s}
+.character-card.selected{border:2px solid #ffd477;box-shadow:0 0 18px #f4c66b66;background:linear-gradient(160deg,#42678b,#182c48)}
+.avatar{height:clamp(65px,12vh,105px);width:100%;display:grid;place-items:center;position:relative;overflow:hidden;border-radius:9px;background:radial-gradient(ellipse at 50% 75%,#8db5d944,transparent 65%)}
+.avatar svg{height:100%;max-width:100%;filter:drop-shadow(0 5px 5px #0008)}
+.character-name{font-size:clamp(11px,1.35vw,15px);font-weight:800;text-align:center}
+.character-state{font-size:10px;color:#c7d8ea}
+#selected-character{font-size:12px;color:#ffe2a1;text-align:center;margin-top:auto;padding-top:8px;border-top:1px solid #e8c47c44}
+@media(max-width:600px){#characters-panel{width:min(360px,82vw);min-width:0}.character-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -31,13 +47,32 @@
 <button class="hit" id="shop" aria-label="Abrir loja"></button>
 <button class="hit" id="characters" aria-label="Ver personagens"></button>
 <button class="hit" id="start" aria-label="Começar partida"></button>
+<section id="characters-panel" aria-label="Personagens" aria-hidden="true">
+<div class="panel-head"><div class="panel-title">PERSONAGENS</div><button id="close-characters" aria-label="Fechar personagens">×</button></div>
+<p class="panel-subtitle">Escolha seu personagem</p>
+<div class="character-list">
+<button class="character-card selected" data-character="Personagem 01"><div class="avatar"><svg viewBox="0 0 100 120" aria-hidden="true"><path d="M24 112 Q25 78 38 70 L38 56 62 56 62 70 Q78 78 78 112Z" fill="#b8323e" stroke="#f3c2a0" stroke-width="3"/><ellipse cx="50" cy="38" rx="22" ry="27" fill="#f0c3a0"/><path d="M27 39 Q19 4 52 7 Q84 7 73 43 L65 29 40 25 31 44Z" fill="#542b32"/><circle cx="42" cy="39" r="2.5" fill="#20283a"/><circle cx="59" cy="39" r="2.5" fill="#20283a"/></svg></div><span class="character-name">Personagem 01</span><span class="character-state">Selecionado</span></button>
+<button class="character-card" data-character="Personagem 02"><div class="avatar"><svg viewBox="0 0 100 120" aria-hidden="true"><path d="M22 112 Q25 78 38 70 L38 56 62 56 62 70 Q78 78 80 112Z" fill="#315f9d" stroke="#f3c2a0" stroke-width="3"/><ellipse cx="50" cy="38" rx="22" ry="27" fill="#dba77f"/><path d="M26 39 Q22 7 52 8 Q82 7 75 45 L64 27 38 25Z" fill="#202b42"/><circle cx="42" cy="39" r="2.5" fill="#20283a"/><circle cx="59" cy="39" r="2.5" fill="#20283a"/></svg></div><span class="character-name">Personagem 02</span><span class="character-state">Disponível</span></button>
+<button class="character-card" data-character="Personagem 03"><div class="avatar"><svg viewBox="0 0 100 120" aria-hidden="true"><path d="M22 112 Q25 78 38 70 L38 56 62 56 62 70 Q78 78 80 112Z" fill="#477d55" stroke="#f3c2a0" stroke-width="3"/><ellipse cx="50" cy="38" rx="22" ry="27" fill="#efc5a4"/><path d="M26 40 Q18 10 48 7 Q83 8 74 45 L65 25 37 28Z" fill="#e6d7bd"/><circle cx="42" cy="39" r="2.5" fill="#20283a"/><circle cx="59" cy="39" r="2.5" fill="#20283a"/></svg></div><span class="character-name">Personagem 03</span><span class="character-state">Disponível</span></button>
+<button class="character-card" data-character="Personagem 04"><div class="avatar"><svg viewBox="0 0 100 120" aria-hidden="true"><path d="M22 112 Q25 78 38 70 L38 56 62 56 62 70 Q78 78 80 112Z" fill="#7653a0" stroke="#f3c2a0" stroke-width="3"/><ellipse cx="50" cy="38" rx="22" ry="27" fill="#c98e70"/><path d="M25 40 Q19 7 51 7 Q84 7 75 45 L63 25 37 27Z" fill="#211b2d"/><circle cx="42" cy="39" r="2.5" fill="#20283a"/><circle cx="59" cy="39" r="2.5" fill="#20283a"/></svg></div><span class="character-name">Personagem 04</span><span class="character-state">Disponível</span></button>
+</div><div id="selected-character">Selecionado: Personagem 01</div></section>
 <div id="status" role="status" aria-live="polite"></div>
 </main>
 <script>
 const statusBox=document.getElementById('status');let hideTimer;
 function showMessage(message){statusBox.textContent=message;statusBox.classList.add('show');clearTimeout(hideTimer);hideTimer=setTimeout(()=>statusBox.classList.remove('show'),2400)}
-const actions={profile:'Perfil: personalização e estatísticas serão adicionados nesta etapa.',shop:'Loja: sistema de itens será desenvolvido.',characters:'Personagens: seleção dos personagens será adicionada.',start:'O lobby está aberto. A partida Battle Royale ainda está em desenvolvimento.'};
+const actions={profile:'Perfil: personalização e estatísticas serão adicionados nesta etapa.',shop:'Loja: sistema de itens será desenvolvido.',start:'O lobby está aberto. A partida Battle Royale ainda está em desenvolvimento.'};
 Object.entries(actions).forEach(([id,message])=>document.getElementById(id).addEventListener('click',()=>showMessage(message)));
+const characterPanel=document.getElementById('characters-panel');
+function openCharacters(){characterPanel.classList.add('open');characterPanel.setAttribute('aria-hidden','false');}
+function closeCharacters(){characterPanel.classList.remove('open');characterPanel.setAttribute('aria-hidden','true');}
+document.getElementById('characters').addEventListener('click',openCharacters);
+document.getElementById('close-characters').addEventListener('click',closeCharacters);
+document.querySelectorAll('.character-card').forEach(card=>card.addEventListener('click',()=>{
+ document.querySelectorAll('.character-card').forEach(item=>{item.classList.remove('selected');item.querySelector('.character-state').textContent='Disponível';});
+ card.classList.add('selected');card.querySelector('.character-state').textContent='Selecionado';
+ document.getElementById('selected-character').textContent='Selecionado: '+card.dataset.character;
+}));
 const petals=document.getElementById('petals');
 for(let i=0;i<18;i++){const p=document.createElement('i');p.className='petal';p.style.setProperty('--left',(Math.random()*100)+'%');p.style.setProperty('--duration',(9+Math.random()*12)+'s');p.style.setProperty('--delay',(-Math.random()*18)+'s');p.style.setProperty('--drift',(Math.random()*100-50)+'px');p.style.setProperty('--angle',(Math.random()*180)+'deg');petals.appendChild(p)}
 </script>
