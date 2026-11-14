@@ -8,11 +8,36 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080d19}
-body{touch-action:manipulation}
-#lobby-image{display:block;width:100vw;height:100vh;height:100dvh;object-fit:contain;object-position:center;background:#080d19;-webkit-user-drag:none;user-select:none}
+body{touch-action:pan-y}
+#lobby-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;object-position:center;background:#080d19;-webkit-user-drag:none;user-select:none;pointer-events:none}
+#character-stage{position:absolute;left:50%;bottom:7%;width:min(48vw,42vh);height:min(66vh,76vw);transform:translateX(-50%);perspective:900px;touch-action:pan-y;z-index:2}
+#character-card{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateY(0deg);will-change:transform;animation:breathe 3.2s ease-in-out infinite;transform-origin:50% 85%}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+#character-front img{width:100%;height:100%;object-fit:contain;object-position:center bottom;user-select:none;-webkit-user-drag:none;pointer-events:none}
+#character-back{background:#050505;transform:rotateY(180deg);border-radius:8px}
+@keyframes breathe{0%,100%{scale:1 1}50%{scale:1 1.018}}
+@media(orientation:landscape){#character-stage{left:50%;bottom:3%;width:min(30vw,38vh);height:82vh}}
 </style>
 </head>
 <body>
-<img id="lobby-image" src="lobby.png" alt="Interface do lobby EGG FIRE">
+<img id="lobby-image" src="lobby.png" alt="Interface original do lobby EGG FIRE">
+<div id="character-stage" aria-label="Personagem do lobby. Arraste para girar.">
+  <div id="character-card">
+    <div class="face" id="character-front"><img src="character.png" alt="Personagem EGG FIRE"></div>
+    <div class="face" id="character-back"></div>
+  </div>
+</div>
+<script>
+(()=>{
+ const stage=document.getElementById('character-stage');
+ const card=document.getElementById('character-card');
+ let angle=0,lastX=0,dragging=false;
+ const sensitivity=0.65;
+ stage.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;stage.setPointerCapture(e.pointerId);});
+ stage.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX;lastX=e.clientX;angle=(angle+dx*sensitivity)%360;card.style.transform='rotateY('+angle+'deg)';});
+ const stop=()=>{dragging=false};
+ stage.addEventListener('pointerup',stop);stage.addEventListener('pointercancel',stop);
+})();
+</script>
 </body>
 </html>
