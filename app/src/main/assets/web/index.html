@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07152f"><title>EGG FIRE</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07152f}#lobby{position:relative;width:100vw;height:100dvh;overflow:hidden}#scene{width:100%;height:100%;display:block;object-fit:fill}.hit{position:absolute;border:0;background:transparent;cursor:pointer;border-radius:14px}#profile{left:2.6%;top:4.3%;width:6.8%;height:10.3%}#shop{left:9.9%;top:4.3%;width:6.8%;height:10.3%}#characters{left:1.7%;bottom:3.5%;width:17.2%;height:10.1%}#start{right:2.7%;bottom:3.2%;width:18.2%;height:10.7%}#status{position:absolute;left:50%;bottom:2%;transform:translate(-50%,130%);padding:12px 18px;border-radius:12px;background:#101d38;color:white;font:bold 16px Arial;text-align:center;max-width:90%;transition:transform .2s}#status.show{transform:translate(-50%,0)}
+</style></head><body><main id="lobby"><img id="scene" src="lobby.svg" alt="Lobby EGG FIRE"><button class="hit" id="profile" aria-label="Perfil"></button><button class="hit" id="shop" aria-label="Loja"></button><button class="hit" id="characters" aria-label="Personagens"></button><button class="hit" id="start" aria-label="Começar"></button><div id="status" role="status"></div></main>
+<script>
+const box=document.getElementById('status');let timer;function show(t){box.textContent=t;box.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>box.classList.remove('show'),2600)}
+document.getElementById('profile').onclick=()=>show('Perfil ainda será implementado.');
+document.getElementById('shop').onclick=()=>show('Loja ainda será implementada.');
+document.getElementById('characters').onclick=()=>show('Personagens ainda serão implementados.');
+document.getElementById('start').onclick=()=>show('Lobby pronto. O modo de jogo ainda será desenvolvido.');
+</script></body></html>
