@@ -1,205 +1,252 @@
 extends Node3D
-# Lobby 3D do EGG FIRE: cenário inspirado na referência anime japonesa.
-# Geometria procedural provisória; modelos artísticos finais podem substituir cada peça.
+# EGG FIRE — lobby 3D estilizado inspirado na referência aprovada.
+# Cenário montado com meshes leves para manter compatibilidade com Android.
 
-const MAT = {
-    "stone": Color("#77758e"), "stone_light": Color("#aaa0ae"),
-    "grass": Color("#496f59"), "wood": Color("#6f302d"),
-    "wood_light": Color("#a94a3c"), "roof": Color("#252b49"),
-    "gold": Color("#f4bd55"), "pink": Color("#ff83c8"),
-    "pink_light": Color("#ffc1e5"), "paper": Color("#ffe0a0"),
-    "mountain": Color("#526f9d"), "mountain_light": Color("#7893c2"),
-    "sky": Color("#2388e9")
+const C = {
+    stone = Color("#77758e"), tile = Color("#aaa0ae"), grass = Color("#496f59"),
+    wood = Color("#71312f"), red = Color("#a92538"), roof = Color("#252b49"),
+    gold = Color("#f4bd55"), pink = Color("#ff83c8"), pale_pink = Color("#ffc1e5"),
+    mountain = Color("#526f9d"), mountain2 = Color("#7893c2"), cloud = Color("#e8f5ff")
 }
 
-func _ready() -> void:
-    _make_environment()
-    _make_courtyard()
-    _make_shrine()
-    _make_torii()
-    _make_pagoda()
-    _make_cherry_trees()
-    _make_lanterns()
-    _make_railings()
-    _make_lobby_ui()
-    var player := get_node_or_null("Player")
-    if player:
-        player.position = Vector3(0, 0, 8.5)
-        var body := player.get_node_or_null("BodyMesh")
-        if body:
-            body.visible = false
-
-func _material(color: Color, roughness := 0.82) -> StandardMaterial3D:
+func mat(color: Color, roughness := 0.88) -> StandardMaterial3D:
     var m := StandardMaterial3D.new()
     m.albedo_color = color
     m.roughness = roughness
     return m
 
-func _mesh(parent: Node3D, mesh: Mesh, pos: Vector3, color: Color, scale_value := Vector3.ONE) -> MeshInstance3D:
-    var item := MeshInstance3D.new()
-    item.mesh = mesh
-    item.position = pos
-    item.scale = scale_value
-    item.material_override = _material(color)
-    parent.add_child(item)
-    return item
-
-func _box(parent: Node3D, pos: Vector3, size: Vector3, color: Color) -> MeshInstance3D:
+func add_box(parent: Node3D, pos: Vector3, size: Vector3, color: Color, bevel := false) -> MeshInstance3D:
     var mesh := BoxMesh.new()
     mesh.size = size
-    return _mesh(parent, mesh, pos, color)
+    var node := MeshInstance3D.new()
+    node.mesh = mesh
+    node.position = pos
+    node.material_override = mat(color)
+    parent.add_child(node)
+    return node
 
-func _cylinder(parent: Node3D, pos: Vector3, radius: float, height: float, color: Color, sides := 12) -> MeshInstance3D:
+func add_sphere(parent: Node3D, pos: Vector3, radius: float, color: Color, scale := Vector3.ONE) -> MeshInstance3D:
+    var mesh := SphereMesh.new()
+    mesh.radius = radius
+    mesh.height = radius * 2.0
+    var node := MeshInstance3D.new()
+    node.mesh = mesh
+    node.position = pos
+    node.scale = scale
+    node.material_override = mat(color)
+    parent.add_child(node)
+    return node
+
+func add_cylinder(parent: Node3D, pos: Vector3, radius: float, height: float, color: Color) -> MeshInstance3D:
     var mesh := CylinderMesh.new()
     mesh.top_radius = radius
     mesh.bottom_radius = radius
     mesh.height = height
-    mesh.radial_segments = sides
-    return _mesh(parent, mesh, pos, color)
+    mesh.radial_segments = 12
+    var node := MeshInstance3D.new()
+    node.mesh = mesh
+    node.position = pos
+    node.material_override = mat(color)
+    parent.add_child(node)
+    return node
 
-func _sphere(parent: Node3D, pos: Vector3, radius: float, color: Color, scale_value := Vector3.ONE) -> MeshInstance3D:
-    var mesh := SphereMesh.new()
-    mesh.radius = radius
-    mesh.height = radius * 2.0
-    return _mesh(parent, mesh, pos, color, scale_value)
+func _ready() -> void:
+    randomize()
+    build_lighting()
+    build_landscape()
+    build_courtyard()
+    build_shrine()
+    build_torii()
+    build_pagoda()
+    build_sakura()
+    build_lanterns()
+    build_fence()
+    build_camera()
+    build_ui()
 
-func _make_environment() -> void:
+func build_lighting() -> void:
     var world := WorldEnvironment.new()
     var env := Environment.new()
     env.background_mode = Environment.BG_SKY
     var sky := Sky.new()
-    var sky_mat := ProceduralSkyMaterial.new()
-    sky_mat.sky_top_color = Color("#0875ed")
-    sky_mat.sky_horizon_color = Color("#b8ddff")
-    sky_mat.ground_bottom_color = Color("#52617c")
-    sky_mat.ground_horizon_color = Color("#b7d7ef")
-    sky.sky_material = sky_mat
+    var sky_material := ProceduralSkyMaterial.new()
+    sky_material.sky_top_color = Color("#075ee8")
+    sky_material.sky_horizon_color = Color("#a9d9ff")
+    sky_material.sky_curve = 0.18
+    sky_material.ground_bottom_color = Color("#53617d")
+    sky_material.ground_horizon_color = Color("#b6d4ef")
+    sky.sky_material = sky_material
     env.sky = sky
     env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-    env.ambient_light_color = Color("#c8d9ff")
-    env.ambient_light_energy = 0.75
+    env.ambient_light_color = Color("#c6d9ff")
+    env.ambient_light_energy = 0.8
     env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
     world.environment = env
     add_child(world)
 
     var sun := DirectionalLight3D.new()
     sun.rotation_degrees = Vector3(-48, -28, 0)
-    sun.light_color = Color("#ffe4ce")
-    sun.light_energy = 1.25
+    sun.light_color = Color("#ffe2d2")
+    sun.light_energy = 1.35
     sun.shadow_enabled = true
     add_child(sun)
 
-func _make_courtyard() -> void:
-    _box(self, Vector3(0, -0.35, -3), Vector3(34, 0.7, 38), MAT.grass)
-    _box(self, Vector3(0, 0.02, 3), Vector3(28, 0.18, 22), MAT.stone)
-    for x in range(-13, 14, 2):
-        for z in range(-6, 13, 2):
-            _box(self, Vector3(x, 0.13, z), Vector3(1.88, 0.08, 1.88), MAT.stone_light if (x + z) % 4 == 0 else MAT.stone)
-    # Montanhas em camadas ao fundo
-    for i in range(7):
-        var x := -15.0 + float(i) * 5.0
-        var h := 5.5 + float((i * 7) % 4) * 1.4
-        var peak := _mesh(self, PrismMesh.new(), Vector3(x, h * 0.5, -18), MAT.mountain if i % 2 == 0 else MAT.mountain_light, Vector3(4.8, h, 3.0))
+func build_landscape() -> void:
+    # Camadas de montanhas com picos triangulares, atrás do templo.
+    for i in range(9):
+        var x := -20.0 + i * 5.0
+        var h := 8.0 + float((i * 13) % 5) * 1.25
+        var mesh := PrismMesh.new()
+        mesh.size = Vector3(7.0, h, 4.0)
+        var peak := MeshInstance3D.new()
+        peak.mesh = mesh
+        peak.position = Vector3(x, h * 0.48, -22.0)
         peak.rotation_degrees.y = 45
+        peak.material_override = mat(C.mountain if i % 2 == 0 else C.mountain2)
+        add_child(peak)
+    # Nuvens volumétricas simples no horizonte.
+    for i in range(14):
+        var x := -18.0 + i * 2.8
+        var y := 7.0 + sin(float(i) * 1.7) * 1.2
+        var z := -19.0 - float(i % 3) * 1.2
+        for j in range(3):
+            add_sphere(self, Vector3(x + j * 0.8, y + (j % 2) * 0.35, z), 1.05, C.cloud, Vector3(1.5, 0.55, 0.8))
 
-func _make_shrine() -> void:
-    var x := -8.0
-    _box(self, Vector3(x, 1.0, -3.5), Vector3(6.0, 2.0, 4.0), MAT.wood)
-    _box(self, Vector3(x, 2.05, -3.5), Vector3(6.8, 0.25, 4.7), MAT.gold)
-    _box(self, Vector3(x, 2.45, -3.5), Vector3(7.4, 0.28, 5.0), MAT.roof)
-    _box(self, Vector3(x, 1.0, -1.42), Vector3(5.2, 1.9, 0.18), Color("#39273d"))
+func build_courtyard() -> void:
+    add_box(self, Vector3(0, -0.45, -2), Vector3(38, 0.8, 42), C.grass)
+    add_box(self, Vector3(0, 0.02, 3), Vector3(29, 0.18, 22), C.stone)
+    for x in range(-14, 15, 2):
+        for z in range(-7, 14, 2):
+            var color: Color = C.tile if (x + z) % 4 == 0 else C.stone
+            add_box(self, Vector3(x, 0.14, z), Vector3(1.92, 0.08, 1.92), color)
+    # Bordas e pequenos degraus do pátio.
+    add_box(self, Vector3(0, 0.02, 14.2), Vector3(30, 0.35, 0.45), C.roof)
+    add_box(self, Vector3(0, 0.02, -8.2), Vector3(30, 0.35, 0.45), C.roof)
+
+func build_shrine() -> void:
+    var x := -9.0
+    # Edificação principal, portas, colunas e telhado em camadas.
+    add_box(self, Vector3(x, 1.35, -3.4), Vector3(6.2, 2.7, 4.2), C.wood)
+    add_box(self, Vector3(x, 1.35, -1.26), Vector3(4.5, 2.2, 0.12), Color("#39283d"))
     for side in [-1.0, 1.0]:
-        _box(self, Vector3(x + side * 2.8, 1.25, -1.2), Vector3(0.28, 2.5, 0.3), MAT.wood_light)
-    # Degraus
-    for i in range(4):
-        _box(self, Vector3(x, 0.22 + i * 0.16, -0.8 + i * 0.42), Vector3(4.0 - i * 0.25, 0.22, 0.8), MAT.stone_light)
-    # beirais do telhado
-    _box(self, Vector3(x, 2.75, -3.5), Vector3(8.0, 0.16, 5.6), MAT.roof)
-
-func _make_torii() -> void:
-    var x := 8.0
+        add_box(self, Vector3(x + side * 2.65, 1.35, -1.1), Vector3(0.32, 2.8, 0.36), Color("#c05a45"))
+    add_box(self, Vector3(x, 2.78, -3.4), Vector3(7.5, 0.22, 5.1), C.roof)
+    add_box(self, Vector3(x, 3.0, -3.4), Vector3(8.1, 0.16, 4.5), C.wood)
+    add_box(self, Vector3(x, 3.16, -3.4), Vector3(8.8, 0.18, 5.2), C.roof)
+    # Telhado com beirais laterais em ângulo.
     for side in [-1.0, 1.0]:
-        _box(self, Vector3(x + side * 2.5, 2.0, -1.0), Vector3(0.48, 4.0, 0.5), Color("#a92336"))
-        _box(self, Vector3(x + side * 2.5, 0.22, -1.0), Vector3(0.9, 0.45, 0.9), MAT.roof)
-    _box(self, Vector3(x, 4.05, -1.0), Vector3(6.4, 0.48, 0.7), Color("#a92336"))
-    _box(self, Vector3(x, 4.38, -1.0), Vector3(7.0, 0.22, 0.85), MAT.roof)
-    _box(self, Vector3(x, 3.25, -1.0), Vector3(5.2, 0.25, 0.5), Color("#a92336"))
+        var eave := add_box(self, Vector3(x + side * 3.5, 3.0, -3.4), Vector3(1.4, 0.18, 5.4), C.roof)
+        eave.rotation.z = side * deg_to_rad(-8)
+    # Janela iluminada.
+    add_box(self, Vector3(x - 1.75, 1.65, -1.18), Vector3(1.15, 1.35, 0.08), C.gold)
+    # Escadaria frontal.
+    for i in range(5):
+        add_box(self, Vector3(x, 0.2 + i * 0.14, -0.15 + i * 0.4), Vector3(4.5 - i * 0.18, 0.2, 0.75), C.tile)
 
-func _make_pagoda() -> void:
-    var base := Vector3(0, 0, -16)
-    _box(self, base + Vector3(0, 0.5, 0), Vector3(3.5, 1.0, 3.5), MAT.wood)
-    for floor_index in range(4):
-        var y := 1.3 + floor_index * 1.45
-        var width := 3.8 - floor_index * 0.55
-        _box(self, base + Vector3(0, y, 0), Vector3(width * 0.62, 1.15, width * 0.62), Color("#8b3b48"))
-        _box(self, base + Vector3(0, y + 0.68, 0), Vector3(width, 0.2, width), MAT.roof)
-        _box(self, base + Vector3(0, y + 0.82, 0), Vector3(width * 0.82, 0.12, width * 0.82), MAT.gold)
-    _cylinder(self, base + Vector3(0, 7.0, 0), 0.09, 1.7, MAT.gold, 8)
+func build_torii() -> void:
+    var x := 9.0
+    for side in [-1.0, 1.0]:
+        add_box(self, Vector3(x + side * 2.5, 2.1, -1.4), Vector3(0.52, 4.2, 0.58), C.red)
+        add_box(self, Vector3(x + side * 2.5, 0.2, -1.4), Vector3(0.9, 0.42, 0.9), C.roof)
+    add_box(self, Vector3(x, 4.18, -1.4), Vector3(6.8, 0.5, 0.8), C.red)
+    add_box(self, Vector3(x, 4.53, -1.4), Vector3(7.6, 0.24, 1.0), C.roof)
+    add_box(self, Vector3(x, 3.35, -1.4), Vector3(5.4, 0.28, 0.65), C.red)
+    # Vigas superiores projetadas.
+    for side in [-1.0, 1.0]:
+        var tip := add_box(self, Vector3(x + side * 3.15, 4.58, -1.4), Vector3(1.1, 0.18, 0.85), C.roof)
+        tip.rotation.z = side * deg_to_rad(8)
 
-func _make_cherry_trees() -> void:
-    var positions := [Vector3(-12, 0, -5), Vector3(-12, 0, 4), Vector3(12, 0, -7), Vector3(13, 0, 4)]
+func build_pagoda() -> void:
+    var base := Vector3(0, 0, -18.5)
+    add_box(self, base + Vector3(0, 0.5, 0), Vector3(4.0, 1.0, 4.0), C.wood)
+    for level in range(4):
+        var y := 1.2 + level * 1.48
+        var w := 4.4 - level * 0.62
+        add_box(self, base + Vector3(0, y, 0), Vector3(w * 0.65, 1.15, w * 0.65), Color("#8d3d50"))
+        add_box(self, base + Vector3(0, y + 0.68, 0), Vector3(w, 0.22, w), C.roof)
+        add_box(self, base + Vector3(0, y + 0.84, 0), Vector3(w * 0.82, 0.12, w * 0.82), C.gold)
+        for side in [-1.0, 1.0]:
+            add_box(self, base + Vector3(side * w * 0.24, y, w * 0.34), Vector3(0.12, 0.9, 0.12), C.gold)
+    add_cylinder(self, base + Vector3(0, 7.25, 0), 0.1, 1.8, C.gold)
+
+func build_sakura() -> void:
+    var tree_positions := [Vector3(-14, 0, -4), Vector3(-13, 0, 5), Vector3(14, 0, -5), Vector3(14, 0, 5)]
+    for p in tree_positions:
+        add_cylinder(self, p + Vector3(0, 2.5, 0), 0.3, 5.0, Color("#49303b"))
+        # Galhos horizontais visíveis sob a copa.
+        for branch in range(4):
+            var limb := add_cylinder(self, p + Vector3((branch - 1.5) * 0.75, 3.5, -0.15), 0.11, 2.1, Color("#49303b"))
+            limb.rotation.z = deg_to_rad(55 if branch % 2 == 0 else -55)
+        for i in range(13):
+            var angle := TAU * float(i) / 13.0
+            var crown_pos := p + Vector3(cos(angle) * 2.0, 4.0 + sin(angle * 2.0) * 0.55, sin(angle) * 1.55)
+            add_sphere(self, crown_pos, 1.12, C.pink if i % 2 == 0 else C.pale_pink, Vector3(1.35, 0.7, 1.0))
+        for j in range(10):
+            add_sphere(self, p + Vector3(randf_range(-3.2, 3.2), randf_range(2.5, 5.3), randf_range(-2.2, 2.2)), 0.11, C.pink, Vector3(1.7, 0.25, 0.8))
+
+func build_lanterns() -> void:
+    var positions := [Vector3(-5.2, 2.15, -1.25), Vector3(5.2, 2.15, -1.25), Vector3(-11.7, 2.2, -0.8), Vector3(11.7, 2.2, -0.8)]
     for p in positions:
-        _cylinder(self, p + Vector3(0, 2.4, 0), 0.28, 4.8, Color("#49303b"), 9)
-        for i in range(9):
-            var angle := float(i) * TAU / 9.0
-            var offset := Vector3(cos(angle) * 1.8, 3.7 + sin(angle * 2.0) * 0.5, sin(angle) * 1.4)
-            _sphere(self, p + offset, 1.35, MAT.pink if i % 2 == 0 else MAT.pink_light, Vector3(1.25, 0.72, 1.0))
-        for j in range(8):
-            var petal_pos := p + Vector3(randf_range(-3, 3), randf_range(1.8, 4.8), randf_range(-2, 2))
-            _sphere(self, petal_pos, 0.12, MAT.pink, Vector3(1.8, 0.25, 0.8))
+        add_box(self, p, Vector3(0.68, 0.95, 0.68), Color("#f6a84d"))
+        add_box(self, p + Vector3(0, 0.56, 0), Vector3(0.9, 0.14, 0.9), C.roof)
+        add_box(self, p + Vector3(0, -0.55, 0), Vector3(0.85, 0.12, 0.85), C.roof)
+        var light := OmniLight3D.new()
+        light.position = p
+        light.light_color = Color("#ffae55")
+        light.light_energy = 0.8
+        light.omni_range = 4.5
+        add_child(light)
 
-func _make_lanterns() -> void:
-    for p in [Vector3(-4.5, 2.2, -1.4), Vector3(4.5, 2.2, -1.4), Vector3(-10.8, 2.0, -1.0), Vector3(10.8, 2.0, -1.0)]:
-        _box(self, p, Vector3(0.72, 0.9, 0.72), MAT.gold)
-        _box(self, p + Vector3(0, 0.53, 0), Vector3(0.9, 0.12, 0.9), MAT.roof)
-        var glow := OmniLight3D.new()
-        glow.position = p
-        glow.light_color = Color("#ffb45c")
-        glow.light_energy = 0.65
-        glow.omni_range = 4.0
-        add_child(glow)
+func build_fence() -> void:
+    for x in range(-11, 12, 2):
+        add_box(self, Vector3(x, 0.8, -9.0), Vector3(0.22, 1.6, 0.28), C.wood)
+    add_box(self, Vector3(0, 1.42, -9.0), Vector3(23, 0.22, 0.35), C.wood)
+    add_box(self, Vector3(0, 0.55, -9.0), Vector3(23, 0.18, 0.32), C.wood)
 
-func _make_railings() -> void:
-    for x in range(-10, 11, 2):
-        _box(self, Vector3(x, 0.8, -8.0), Vector3(0.22, 1.6, 0.25), MAT.wood_light)
-    _box(self, Vector3(0, 1.45, -8.0), Vector3(22, 0.22, 0.35), MAT.wood)
+func build_camera() -> void:
+    var camera := Camera3D.new()
+    camera.position = Vector3(0, 8.2, 21.5)
+    camera.fov = 54.0
+    add_child(camera)
+    camera.look_at(Vector3(0, 3.2, -7.0), Vector3.UP)
+    camera.current = true
 
-func _make_lobby_ui() -> void:
+func build_ui() -> void:
     var layer := CanvasLayer.new()
     add_child(layer)
-    var ui := Control.new()
-    ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    layer.add_child(ui)
-    _ui_button(ui, "PERFIL", Vector2(28, 22), Vector2(112, 72), Color("#0875ed"))
-    _ui_button(ui, "LOJA", Vector2(150, 22), Vector2(112, 72), Color("#f3a51d"))
-    _ui_button(ui, "PERSONAGENS", Vector2(28, -94), Vector2(235, 72), Color("#0875ed"), true)
-    _ui_button(ui, "▶  COMEÇAR", Vector2(-270, -94), Vector2(242, 72), Color("#f3a51d"), false, true)
+    var root := Control.new()
+    root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    layer.add_child(root)
+    make_button(root, "♙  PERFIL", 0.025, 0.035, 0.105, 0.105, Color("#0875ed"))
+    make_button(root, "🛒  LOJA", 0.135, 0.035, 0.105, 0.105, Color("#f3a51d"))
+    make_button(root, "♟  PERSONAGENS", 0.025, 0.86, 0.19, 0.105, Color("#0875ed"))
+    make_button(root, "▶  COMEÇAR", 0.79, 0.86, 0.19, 0.105, Color("#f3a51d"))
 
-func _ui_button(parent: Control, label: String, offset: Vector2, size: Vector2, color: Color, bottom := false, right := false) -> void:
+func make_button(root: Control, label: String, left: float, top: float, width: float, height: float, color: Color) -> void:
     var button := Button.new()
     button.text = label
-    button.add_theme_font_size_override("font_size", 23)
+    button.anchor_left = left
+    button.anchor_top = top
+    button.anchor_right = left + width
+    button.anchor_bottom = top + height
+    button.offset_left = 0
+    button.offset_top = 0
+    button.offset_right = 0
+    button.offset_bottom = 0
+    button.add_theme_font_size_override("font_size", 19)
     button.add_theme_color_override("font_color", Color.WHITE)
-    button.add_theme_color_override("font_outline_color", Color("#20243a"))
+    button.add_theme_color_override("font_outline_color", Color("#17213c"))
     button.add_theme_constant_override("outline_size", 4)
-    button.custom_minimum_size = size
-    button.position = offset
-    if bottom:
-        button.anchor_top = 1.0
-        button.anchor_bottom = 1.0
-    if right:
-        button.anchor_left = 1.0
-        button.anchor_right = 1.0
-    var normal := StyleBoxFlat.new()
-    normal.bg_color = color
-    normal.border_color = Color("#17213c")
-    normal.set_border_width_all(3)
-    normal.set_corner_radius_all(16)
-    normal.shadow_color = Color(0, 0, 0, 0.35)
-    normal.shadow_size = 5
-    button.add_theme_stylebox_override("normal", normal)
-    var hover := normal.duplicate()
+    var style := StyleBoxFlat.new()
+    style.bg_color = color
+    style.border_color = Color("#17213c")
+    style.set_border_width_all(3)
+    style.set_corner_radius_all(13)
+    style.shadow_color = Color(0, 0, 0, 0.35)
+    style.shadow_size = 5
+    button.add_theme_stylebox_override("normal", style)
+    var hover := style.duplicate()
     hover.bg_color = color.lightened(0.16)
     button.add_theme_stylebox_override("hover", hover)
-    button.pressed.connect(func(): print("EGG FIRE lobby: ", label))
-    parent.add_child(button)
+    button.pressed.connect(func(): print("EGG FIRE: botão ", label))
+    root.add_child(button)
