@@ -29,6 +29,20 @@ func _ready() -> void:
     jump.pressed.connect(player.request_jump)
     hud_root.add_child(jump)
 
+    var fire := Button.new()
+    fire.text = "ATIRAR"
+    fire.custom_minimum_size = Vector2(112, 72)
+    fire.anchor_left = 1.0
+    fire.anchor_top = 1.0
+    fire.anchor_right = 1.0
+    fire.anchor_bottom = 1.0
+    fire.offset_left = -132
+    fire.offset_top = -220
+    fire.offset_right = -28
+    fire.offset_bottom = -148
+    fire.pressed.connect(player.request_fire)
+    hud_root.add_child(fire)
+
 func _draw_joystick() -> void:
     if joystick_active:
         hud_root.draw_circle(joystick_origin, joystick_radius, Color(0.1, 0.1, 0.1, 0.28))
