@@ -3,10 +3,10 @@ extends Node3D
 # Cenário montado com meshes leves para manter compatibilidade com Android.
 
 const C = {
-    stone = Color("#77758e"), tile = Color("#aaa0ae"), grass = Color("#496f59"),
-    wood = Color("#71312f"), red = Color("#a92538"), roof = Color("#252b49"),
-    gold = Color("#f4bd55"), pink = Color("#ff83c8"), pale_pink = Color("#ffc1e5"),
-    mountain = Color("#526f9d"), mountain2 = Color("#7893c2"), cloud = Color("#e8f5ff")
+    "stone": Color("#77758e"), "tile": Color("#aaa0ae"), "grass": Color("#496f59"),
+    "wood": Color("#71312f"), "red": Color("#a92538"), "roof": Color("#252b49"),
+    "gold": Color("#f4bd55"), "pink": Color("#ff83c8"), "pale_pink": Color("#ffc1e5"),
+    "mountain": Color("#526f9d"), "mountain2": Color("#7893c2"), "cloud": Color("#e8f5ff")
 }
 
 func mat(color: Color, roughness := 0.88) -> StandardMaterial3D:
