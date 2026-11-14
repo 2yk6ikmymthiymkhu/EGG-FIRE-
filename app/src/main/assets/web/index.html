@@ -1,12 +1,45 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07152f"><title>EGG FIRE</title>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#07152f">
+<title>EGG FIRE</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07152f}#lobby{position:relative;width:100vw;height:100dvh;overflow:hidden}#scene{width:100%;height:100%;display:block;object-fit:fill}.hit{position:absolute;border:0;background:transparent;cursor:pointer;border-radius:14px}#profile{left:2.2%;top:3.2%;width:6.5%;height:11.1%}#shop{left:11.1%;top:3.2%;width:6.5%;height:11.1%}#characters{left:2%;bottom:3.8%;width:18%;height:9.1%}#start{right:2.1%;bottom:3.8%;width:18.6%;height:9.5%}#status{position:absolute;left:50%;bottom:2%;transform:translate(-50%,130%);padding:12px 18px;border-radius:12px;background:#101d38;color:white;font:bold 16px Arial;text-align:center;max-width:90%;transition:transform .2s}#status.show{transform:translate(-50%,0)}
-</style></head><body><main id="lobby"><img id="scene" src="lobby.svg" alt="Lobby EGG FIRE"><button class="hit" id="profile" aria-label="Perfil"></button><button class="hit" id="shop" aria-label="Loja"></button><button class="hit" id="characters" aria-label="Personagens"></button><button class="hit" id="start" aria-label="Começar"></button><div id="status" role="status"></div></main>
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07152f}body{font-family:system-ui,Arial,sans-serif;touch-action:manipulation}
+#lobby{position:relative;width:100vw;height:100dvh;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#315d91,#07152f 85%)}
+#scene{position:absolute;width:100%;height:100%;inset:0;display:block;object-fit:fill}
+#vignette{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#06142b25 0%,transparent 35%,#06142b20 70%,#06142b55 100%);box-shadow:inset 0 0 90px #06142b66}
+#petals{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.petal{position:absolute;top:-8%;width:11px;height:16px;border-radius:85% 15% 80% 20%;background:linear-gradient(135deg,#ffe2f1,#ff83c4);box-shadow:0 0 9px #ffacd966;opacity:.88;animation:fall var(--duration) linear var(--delay) infinite;left:var(--left);transform:rotate(var(--angle))}
+@keyframes fall{0%{translate:0 -5vh;rotate:0deg;opacity:0}12%{opacity:.9}50%{translate:var(--drift) 52vh;rotate:220deg}88%{opacity:.85}100%{translate:calc(var(--drift) * -1) 112vh;rotate:520deg;opacity:0}}
+.hit{position:absolute;z-index:3;border:1px solid #ffffff22;background:linear-gradient(145deg,#ffffff08,#06152b10);cursor:pointer;border-radius:14px;transition:filter .16s,transform .16s; -webkit-tap-highlight-color:transparent}
+.hit:active{filter:brightness(1.3);transform:scale(.96)}
+.hit:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#profile{left:2.2%;top:3.2%;width:6.5%;height:11.1%}#shop{left:11.1%;top:3.2%;width:6.5%;height:11.1%}
+#characters{left:2%;bottom:3.8%;width:18%;height:9.1%}#start{right:2.1%;bottom:3.8%;width:18.6%;height:9.5%}
+#status{position:absolute;z-index:5;left:50%;bottom:3%;transform:translate(-50%,150%);padding:11px 18px;border:1px solid #ffffff35;border-radius:14px;background:#101d38ed;color:#fff;font-weight:700;font-size:clamp(12px,1.6vw,17px);text-align:center;max-width:90%;box-shadow:0 8px 28px #0007;transition:transform .25s ease}
+#status.show{transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){.petal{animation:none;display:none}.hit{transition:none}}
+</style>
+</head>
+<body>
+<main id="lobby" aria-label="Lobby do EGG FIRE">
+<img id="scene" src="lobby.svg" alt="Templo japonês, cerejeiras e montanhas do lobby EGG FIRE">
+<div id="vignette"></div><div id="petals" aria-hidden="true"></div>
+<button class="hit" id="profile" aria-label="Abrir perfil"></button>
+<button class="hit" id="shop" aria-label="Abrir loja"></button>
+<button class="hit" id="characters" aria-label="Ver personagens"></button>
+<button class="hit" id="start" aria-label="Começar partida"></button>
+<div id="status" role="status" aria-live="polite"></div>
+</main>
 <script>
-const box=document.getElementById('status');let timer;function show(t){box.textContent=t;box.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>box.classList.remove('show'),2600)}
-document.getElementById('profile').onclick=()=>show('Perfil ainda será implementado.');
-document.getElementById('shop').onclick=()=>show('Loja ainda será implementada.');
-document.getElementById('characters').onclick=()=>show('Personagens ainda serão implementados.');
-document.getElementById('start').onclick=()=>show('Lobby pronto. O modo de jogo ainda será desenvolvido.');
-</script></body></html>
+const statusBox=document.getElementById('status');let hideTimer;
+function showMessage(message){statusBox.textContent=message;statusBox.classList.add('show');clearTimeout(hideTimer);hideTimer=setTimeout(()=>statusBox.classList.remove('show'),2400)}
+const actions={profile:'Perfil: personalização e estatísticas serão adicionados nesta etapa.',shop:'Loja: sistema de itens será desenvolvido.',characters:'Personagens: seleção dos personagens será adicionada.',start:'O lobby está aberto. A partida Battle Royale ainda está em desenvolvimento.'};
+Object.entries(actions).forEach(([id,message])=>document.getElementById(id).addEventListener('click',()=>showMessage(message)));
+const petals=document.getElementById('petals');
+for(let i=0;i<18;i++){const p=document.createElement('i');p.className='petal';p.style.setProperty('--left',(Math.random()*100)+'%');p.style.setProperty('--duration',(9+Math.random()*12)+'s');p.style.setProperty('--delay',(-Math.random()*18)+'s');p.style.setProperty('--drift',(Math.random()*100-50)+'px');p.style.setProperty('--angle',(Math.random()*180)+'deg');petals.appendChild(p)}
+</script>
+</body>
+</html>
