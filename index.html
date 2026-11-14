@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07152f">
+  <title>EGG FIRE — Lobby</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07152f}
+    body{font-family:Arial,Helvetica,sans-serif}
+    #lobby{position:relative;width:100vw;height:100dvh;overflow:hidden;background:#07152f}
+    #scene{display:block;width:100%;height:100%;object-fit:fill}
+    .hit{position:absolute;border:0;background:transparent;cursor:pointer;border-radius:16px;outline:none}
+    .hit:focus-visible{outline:3px solid white;outline-offset:3px}
+    #profile{left:2.6%;top:4.3%;width:6.8%;height:10.3%}
+    #shop{left:9.9%;top:4.3%;width:6.8%;height:10.3%}
+    #characters{left:1.7%;bottom:3.5%;width:17.2%;height:10.1%}
+    #start{right:2.7%;bottom:3.2%;width:18.2%;height:10.7%}
+    #status{position:absolute;left:50%;bottom:2%;transform:translate(-50%,120%);padding:12px 20px;border-radius:12px;background:#101d38;color:#fff;font-weight:700;text-align:center;box-shadow:0 5px 20px #0008;transition:transform .2s;max-width:90%;pointer-events:none}
+    #status.show{transform:translate(-50%,0)}
+    @media(max-aspect-ratio:4/3){
+      #scene{object-fit:cover}
+      #profile{width:10%;height:9%}
+      #shop{left:13%;width:10%;height:9%}
+      #characters{width:27%;height:9%}
+      #start{width:29%;height:9%}
+    }
+  </style>
+</head>
+<body>
+  <main id="lobby" aria-label="Menu principal do EGG FIRE">
+    <img id="scene" src="assets/lobby.svg" alt="Lobby do EGG FIRE com cenário japonês em estilo anime">
+    <button class="hit" id="profile" aria-label="Abrir perfil"></button>
+    <button class="hit" id="shop" aria-label="Abrir loja"></button>
+    <button class="hit" id="characters" aria-label="Abrir personagens"></button>
+    <button class="hit" id="start" aria-label="Começar partida"></button>
+    <div id="status" role="status" aria-live="polite"></div>
+  </main>
+  <script>
+    const statusBox = document.getElementById('status');
+    let hideTimer;
+    function notify(message) {
+      statusBox.textContent = message;
+      statusBox.classList.add('show');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => statusBox.classList.remove('show'), 2600);
+    }
+    function emitLobbyAction(action) {
+      window.dispatchEvent(new CustomEvent('eggfire:lobby-action', { detail: { action } }));
+    }
+    document.getElementById('profile').addEventListener('click', () => {
+      emitLobbyAction('profile');
+      notify('Perfil: tela ainda não implementada.');
+    });
+    document.getElementById('shop').addEventListener('click', () => {
+      emitLobbyAction('shop');
+      notify('Loja: tela ainda não implementada.');
+    });
+    document.getElementById('characters').addEventListener('click', () => {
+      emitLobbyAction('characters');
+      notify('Personagens: tela ainda não implementada.');
+    });
+    document.getElementById('start').addEventListener('click', () => {
+      emitLobbyAction('start');
+      notify('O lobby está pronto. A partida será conectada quando o sistema de jogo for integrado.');
+    });
+  </script>
+</body>
+</html>
