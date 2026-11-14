@@ -21,13 +21,18 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Install Android platform and NDK
         run: |
-          yes | sdkmanager --licenses >/dev/null
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "ndk;23.2.8568313"
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null
+          "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0" "ndk;23.2.8568313"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/23.2.8568313" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/23.2.8568313" >> "$GITHUB_ENV"
 
       - name: Download Godot 4.3 and Android export templates
         run: |
@@ -64,7 +69,7 @@ jobs:
 
       - name: Export Android APK
         run: |
-          /tmp/godot/Godot_v4.3-stable_linux.x86_64 --headless --path godot --export-debug "Android" ../app/build/outputs/apk/debug/EGG-FIRE.apk
+          /tmp/godot/Godot_v4.3-stable_linux.x86_64 --headless --path godot --export-debug "Android" "$GITHUB_WORKSPACE/app/build/outputs/apk/debug/EGG-FIRE.apk"
           test -s app/build/outputs/apk/debug/EGG-FIRE.apk
 
       - name: Upload APK
