@@ -26,6 +26,12 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Include original lobby image in Android assets
+        run: |
+          mkdir -p app/src/main/assets/web
+          cp app/src/main/file_000000002b60820e9b3b90c83315eeed.png app/src/main/assets/web/lobby.png
+          test -s app/src/main/assets/web/lobby.png
+
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
 
