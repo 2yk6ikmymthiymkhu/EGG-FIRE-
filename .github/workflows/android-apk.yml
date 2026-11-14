@@ -67,8 +67,23 @@ jobs:
         run: |
           /tmp/godot/Godot_v4.3-stable_linux.x86_64 --headless --editor --path godot --quit
 
+      - name: Diagnose Android export prerequisites
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "JAVA_HOME=$JAVA_HOME"
+          cat "$HOME/.config/godot/editor_settings-4.tres"
+          test -x "$ANDROID_HOME/platform-tools/adb"
+          test -x "$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          test -x "$ANDROID_HOME/cmake/3.10.2.4988404/bin/cmake"
+          test -d "$ANDROID_HOME/ndk/23.2.8568313"
+          test -s "$HOME/.local/share/godot/export_templates/4.3.stable/android_debug.apk"
+          test -s "$HOME/.local/share/godot/export_templates/4.3.stable/android_release.apk"
+
       - name: Export Android APK
         run: |
+          export GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$HOME/.android/debug.keystore"
+          export GODOT_ANDROID_KEYSTORE_DEBUG_USER="androiddebugkey"
+          export GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD="android"
           /tmp/godot/Godot_v4.3-stable_linux.x86_64 --headless --verbose --path godot --export-debug "Android" "$GITHUB_WORKSPACE/app/build/outputs/apk/debug/EGG-FIRE.apk"
           test -s app/build/outputs/apk/debug/EGG-FIRE.apk
 
