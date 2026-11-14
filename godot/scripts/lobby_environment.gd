@@ -24,8 +24,7 @@ func _ready():
     var player=get_node_or_null("Player")
     if player:
         player.position=Vector3(0,0,8.5)
-        var body=player.get_node_or_null("BodyMesh")
-        if body: body.visible=false
+        _load_lobby_character(player)
 
 func _mat(c):
     var m=StandardMaterial3D.new()
@@ -238,3 +237,68 @@ func _button(parent,label,pos,size,color,bottom=false,right=false):
     b.add_theme_stylebox_override("hover",hover)
     b.pressed.connect(func(): print("EGG FIRE menu: ",label))
     parent.add_child(b)
+
+
+# Carrega o novo personagem 3D rigado enviado ao repositório.
+func _load_lobby_character(player):
+    var old_body=player.get_node_or_null("BodyMesh")
+    if old_body:
+        old_body.visible=false
+
+    var model_scene=load("res://assets/character.glb")
+    if model_scene == null:
+        push_error("EGG FIRE: não foi possível carregar assets/character.glb")
+        return
+
+    var character=model_scene.instantiate()
+    character.name="LobbyCharacter3D"
+    character.position=Vector3(0,0,0)
+    character.rotation=Vector3.ZERO
+    character.scale=Vector3.ONE
+    player.add_child(character)
+
+    var animation_player=_find_animation_player(character)
+    if animation_player:
+        var names=animation_player.get_animation_list()
+        var chosen=""
+        for anim_name in names:
+            var low=String(anim_name).to_lower()
+            if low.contains("idle") or low.contains("breath") or low.contains("respir"):
+                chosen=anim_name
+                break
+        if chosen=="" and names.size()>0:
+            chosen=names[0]
+        if chosen!="":
+            animation_player.play(chosen)
+
+func _find_animation_player(node):
+    if node is AnimationPlayer:
+        return node
+    for child in node.get_children():
+        var found=_find_animation_player(child)
+        if found:
+            return found
+    return null
+
+var _dragging_character=false
+var _last_drag_x=0.0
+
+func _unhandled_input(event):
+    if event is InputEventScreenTouch:
+        _dragging_character=event.pressed
+        _last_drag_x=event.position.x
+    elif event is InputEventScreenDrag and _dragging_character:
+        _rotate_lobby_character(event.position.x-_last_drag_x)
+        _last_drag_x=event.position.x
+    elif event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT:
+        _dragging_character=event.pressed
+        _last_drag_x=event.position.x
+    elif event is InputEventMouseMotion and _dragging_character:
+        _rotate_lobby_character(event.position.x-_last_drag_x)
+        _last_drag_x=event.position.x
+
+func _rotate_lobby_character(delta_x):
+    var player=get_node_or_null("Player")
+    var character=player.get_node_or_null("LobbyCharacter3D") if player else null
+    if character:
+        character.rotate_y(deg_to_rad(delta_x*0.55))
